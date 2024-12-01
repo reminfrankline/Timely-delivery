@@ -1,0 +1,6 @@
+Flask==2.3.2
+requests==2.31.0
+pandas==2.1.1
+folium==0.14.0
+ortools==9.7.2996
+gunicorn==21.2.0  # Optional: For deploying on platforms like Heroku
