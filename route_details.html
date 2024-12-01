@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Optimized Route</title>
+    <script src="https://maps.googleapis.com/maps/api/js?key={{ api_key }}&libraries=geometry"></script>
+    <style>
+        /* General Styles */
+        body {
+            font-family: 'Roboto', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+            color: #333;
+        }
+
+        /* Header */
+        header {
+            background-color: #4caf50;
+            color: #fff;
+            padding: 1rem 2rem;
+            text-align: center;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 2rem;
+        }
+
+        /* Content Container */
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 1rem;
+        }
+
+        .route-list {
+            background: #fff;
+            padding: 1rem;
+            border-radius: 8px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .route-list h2 {
+            margin-top: 0;
+            color: #4caf50;
+        }
+
+        ul {
+            padding: 0;
+            margin: 0;
+            list-style: none;
+        }
+
+        ul li {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #ddd;
+            font-size: 1.1rem;
+        }
+
+        ul li:last-child {
+            border-bottom: none;
+        }
+
+        /* Map Styling */
+        #map {
+            height: 600px;
+            border-radius: 8px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Footer */
+        footer {
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            padding: 1rem;
+            margin-top: 2rem;
+        }
+
+        footer a {
+            color: #4caf50;
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header Section -->
+    <header>
+        <h1>Optimized Delivery Route</h1>
+    </header>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Route List -->
+        <div class="route-list">
+            <h2>Your Route:</h2>
+            <ul>
+                {% for location in route %}
+                <li>{{ location }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <!-- Map Section -->
+        <div id="map"></div>
+    </div>
+
+    <!-- Footer Section -->
+    <footer>
+        <p>Optimized route powered by Google Maps API. <a href="https://developers.google.com/maps/documentation">Learn more</a>.</p>
+    </footer>
+
+    <script>
+        // Load the Google Maps route
+        const locations = {{ route|tojson }};
+        const apiKey = "{{ api_key }}";
+
+        async function initMap() {
+            const map = new google.maps.Map(document.getElementById("map"), {
+                zoom: 10,
+                center: { lat: 0, lng: 0 },
+            });
+
+            const directionsService = new google.maps.DirectionsService();
+            const directionsRenderer = new google.maps.DirectionsRenderer({ map });
+
+            const waypoints = locations.slice(1, -1).map((location) => ({
+                location: location,
+                stopover: true,
+            }));
+
+            const request = {
+                origin: locations[0],
+                destination: locations[locations.length - 1],
+                waypoints: waypoints,
+                travelMode: google.maps.TravelMode.DRIVING,
+            };
+
+            try {
+                const response = await directionsService.route(request);
+                directionsRenderer.setDirections(response);
+            } catch (error) {
+                console.error("Directions request failed due to", error);
+            }
+        }
+
+        // Initialize the map
+        window.onload = initMap;
+    </script>
+</body>
+</html>
